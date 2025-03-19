@@ -1,0 +1,4 @@
+float64[] target_positions  # Desired joint positions
+float64 duration            # Time to reach the target positions
+---
+bool success                # Whether the operation was successful

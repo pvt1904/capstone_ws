@@ -1,0 +1,8 @@
+prefix=/home/tam/capstone_ws/devel
+
+Name: sensor_driver
+Description: Description of sensor_driver
+Version: 0.0.0
+Cflags: -I/home/tam/capstone_ws/src/sensor_driver/include
+Libs: -L${prefix}/lib 
+Requires: roscpp
