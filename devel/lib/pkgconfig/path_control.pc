@@ -1,8 +1,0 @@
-prefix=/home/tam/capstone_ws/devel
-
-Name: path_control
-Description: Description of path_control
-Version: 0.0.0
-Cflags: -I/home/tam/capstone_ws/devel/include -I/home/tam/capstone_ws/src/path_control/include
-Libs: -L${prefix}/lib -lpath_control
-Requires: actionlib actionlib_msgs roscpp std_msgs message_runtime

@@ -1,8 +1,0 @@
-prefix=/home/tam/capstone_ws/devel
-
-Name: motomini
-Description: Description of motomini
-Version: 0.3.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

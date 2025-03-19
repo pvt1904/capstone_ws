@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/handle_leap_motion.dir/src/handle_leap_motion.cpp.o  -o /home/tam/capstone_ws/devel/lib/sensor_driver/handle_leap_motion  -Wl,-rpath,/home/tam/capstone_ws/src/sensor_driver/LeapSDK/lib/x64 /home/tam/capstone_ws/src/sensor_driver/LeapSDK/lib/x64/libLeap.so 
