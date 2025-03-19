@@ -79,39 +79,44 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
     // //orientation error with respect to quaternion
     Eigen::Vector4d quat_d(setpoint_msg.orientation.w, setpoint_msg.orientation.x, setpoint_msg.orientation.y, setpoint_msg.orientation.z);
     Eigen::Vector4d quat_e(feedback_msg.orientation.w, feedback_msg.orientation.x, feedback_msg.orientation.y, feedback_msg.orientation.z);
-    // Eigen::Vector3d v_d = quat_d.tail(3);
-    // Eigen::Vector3d v_e = quat_e.tail(3);
-    // error.tail(3) = quat_e(0) * v_d - quat_d(0) * v_e - v_d.cross(v_e);
+    Eigen::Vector3d v_d = quat_d.tail(3);
+    Eigen::Vector3d v_e = quat_e.tail(3);
+    error.tail(3) = quat_e(0) * v_d - quat_d(0) * v_e - v_d.cross(v_e);
+    error = K * error; // amplify the error
     // ROS_INFO_STREAM("error with respect to quaternion: \n" << error << "\n");
 
     //orientation error with respect to angle and axis
-    Eigen::Quaterniond quat_d_(quat_d(0), quat_d(1), quat_d(2), quat_d(3));
-    Eigen::Quaterniond quat_e_(quat_e(0), quat_e(1), quat_e(2), quat_e(3));
-    Eigen::Matrix3Xd rot_d = quat_d_.toRotationMatrix();
-    Eigen::Matrix3Xd rot_e = quat_e_.toRotationMatrix();
-    Eigen::Vector3d n_d = rot_d.col(0);
-    Eigen::Vector3d s_d = rot_d.col(1);
-    Eigen::Vector3d a_d = rot_d.col(2);
-    Eigen::Vector3d n_e = rot_e.col(0);
-    Eigen::Vector3d s_e = rot_e.col(1);
-    Eigen::Vector3d a_e = rot_e.col(2);
-    error.tail(3) = 0.5 * (n_e.cross(n_d) + s_e.cross(s_d) + a_e.cross(a_d));
-    error = K * error; // amplify the error
+    // Eigen::Quaterniond quat_d_(quat_d(0), quat_d(1), quat_d(2), quat_d(3));
+    // Eigen::Quaterniond quat_e_(quat_e(0), quat_e(1), quat_e(2), quat_e(3));
+    // Eigen::Matrix3Xd rot_d = quat_d_.toRotationMatrix();
+    // Eigen::Matrix3Xd rot_e = quat_e_.toRotationMatrix();
+    // Eigen::Vector3d n_d = rot_d.col(0);
+    // Eigen::Vector3d s_d = rot_d.col(1);
+    // Eigen::Vector3d a_d = rot_d.col(2);
+    // Eigen::Vector3d n_e = rot_e.col(0);
+    // Eigen::Vector3d s_e = rot_e.col(1);
+    // Eigen::Vector3d a_e = rot_e.col(2);
+    // error.tail(3) = 0.5 * (n_e.cross(n_d) + s_e.cross(s_d) + a_e.cross(a_d));
+    // error = K * error; // amplify the error
     //ROS_INFO_STREAM("error with respect to angle and axis: \n" << error << "\n");
 
     //calculate Jacobian
     const robot_state::JointModelGroup* joint_model_group = robot_model_->getJointModelGroup("arm");
     robot_state_->setVariablePositions(q_name, q_e);
     robot_state_->update();
-    Eigen::MatrixXd J;
+    Eigen::MatrixXd J_quat;
     Eigen::Vector3d reference_point_position(0.0, 0.0, 0.0);
     robot_state_->getJacobian(
         joint_model_group,
         robot_state_->getLinkModel(joint_model_group->getLinkModelNames().back()),
         reference_point_position,
-        J,
-        false
+        J_quat,
+        true // enable quaterion presentaion
+        // false // disable quaterion presentaion
     );
+    Eigen::MatrixXd J(6, 6);
+    J.topRows(3) = J_quat.topRows(3);
+    J.bottomRows(3) = J_quat.bottomRows(3);
     //std::cout << "Matrix J size: " << J.rows() << "x" << J.cols() << std::endl;
     //std::cout << "Matrix error size: " << error.rows() << "x" << error.cols() << std::endl;
 
