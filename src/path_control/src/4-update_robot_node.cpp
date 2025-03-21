@@ -62,7 +62,7 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
     }
 
     // Calculate time_from_start based on real elapsed time
-    ros::Duration time_from_start = ros::Time::now() - start_time;
+    // ros::Duration time_from_start = ros::Time::now() - start_time;
     // ROS_INFO("Time from start: %f \n", time_from_start.toSec());
 
     // Publish each new point as a separate trajectory
@@ -72,8 +72,9 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
     trajectory_msgs::JointTrajectoryPoint traj_point;
     traj_point.positions = msg->position;
     traj_point.velocities = msg->velocity;
-    traj_point.time_from_start = time_from_start;
+    traj_point.time_from_start = ros::Time::now() - start_time;;
 
+    trajectory_msg.header.stamp = ros::Time::now();
     trajectory_msg.points.push_back(traj_point);
     pub.publish(trajectory_msg);
     // ROS_INFO("Published trajectory point from /controll_signal to /joint_command.");
@@ -87,7 +88,7 @@ int main(int argc, char** argv) {
     ros::Publisher joint_command_pub = nh.advertise<trajectory_msgs::JointTrajectory>("/joint_command", 1);
 
     ros::Subscriber joint_state_from_bag_sub = nh.subscribe<sensor_msgs::JointState>(
-        "/controll_signal", 10,
+        "/controll_signal", 1,
         boost::bind(&controllSignalCallback, _1, boost::ref(joint_command_pub))
     );
  

@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
             q_last[i] = q[i];
         }
         sensor_msgs::JointState controll_signal_msg;
+        controll_signal_msg.header.stamp = ros::Time::now();
         controll_signal_msg.name = q_name;
         controll_signal_msg.position = q;
         controll_signal_msg.velocity = q_dot;

@@ -17,12 +17,13 @@ ros::Time last_stamp;
 robot_model::RobotModelPtr robot_model_;
 robot_state::RobotStatePtr robot_state_;
 // DLS method variables
-float damp = 0.5;
-float K = 1.85;
+float damp = 0.02;
+float Kp = 1.3;
+float Td = 0.001;
 
 // Conversion factor from degrees to radians
 #define DEG_TO_RAD  (M_PI / 180.0)
-#define TOLERANCE   (10 * DEG_TO_RAD)
+#define TOLERANCE   (5 * DEG_TO_RAD)
 // Maximum motion range in radians
 #define JOINT_1_S_MAX_POS   (170 * DEG_TO_RAD)
 #define JOINT_1_S_MIN_POS   (-170 * DEG_TO_RAD)
@@ -50,13 +51,14 @@ const std::vector<double> JOINT_MIN_POS = {JOINT_1_S_MIN_POS + TOLERANCE, JOINT_
 #define JOINT_4_R_MAX_SPEED (600 * DEG_TO_RAD)
 #define JOINT_5_B_MAX_SPEED (600 * DEG_TO_RAD)
 #define JOINT_6_T_MAX_SPEED (600 * DEG_TO_RAD)
-const std::vector<double> JOINT_MAX_SPEED = {JOINT_1_S_MAX_SPEED - TOLERANCE, JOINT_2_L_MAX_SPEED - TOLERANCE, 
-                                             JOINT_3_U_MAX_SPEED - TOLERANCE, JOINT_4_R_MAX_SPEED - TOLERANCE, 
-                                             JOINT_5_B_MAX_SPEED - TOLERANCE, JOINT_6_T_MAX_SPEED - TOLERANCE};
+#define TOLERANCE_SPEED   (10 * DEG_TO_RAD)
+const std::vector<double> JOINT_MAX_SPEED = {JOINT_1_S_MAX_SPEED - TOLERANCE_SPEED, JOINT_2_L_MAX_SPEED - TOLERANCE_SPEED, 
+                                             JOINT_3_U_MAX_SPEED - TOLERANCE_SPEED, JOINT_4_R_MAX_SPEED - TOLERANCE_SPEED, 
+                                             JOINT_5_B_MAX_SPEED - TOLERANCE_SPEED, JOINT_6_T_MAX_SPEED - TOLERANCE_SPEED};
 
 // Callback for /feed_back
 void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::Publisher& pub) {
-    ROS_INFO("begin");
+    // ROS_INFO("begin");
     if (!setpoint_received)
     {
         //ROS_INFO("hehe");
@@ -70,7 +72,8 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
     }
     feedback_msg = *msg; q_e = feedback_msg.joint.position;
     
-    Eigen::VectorXd error(6);
+    static Eigen::VectorXd error(6);
+    static Eigen::VectorXd last_error = Eigen::VectorXd::Zero(6);
     //position error
     error(0) = setpoint_msg.position.x - feedback_msg.position.x;
     error(1) = setpoint_msg.position.y - feedback_msg.position.y;
@@ -82,7 +85,7 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
     Eigen::Vector3d v_d = quat_d.tail(3);
     Eigen::Vector3d v_e = quat_e.tail(3);
     error.tail(3) = quat_e(0) * v_d - quat_d(0) * v_e - v_d.cross(v_e);
-    error = K * error; // amplify the error
+    error = Kp * (error + Td * (error - last_error) / (ros::Time::now() - last_stamp).toSec()); // amplify the error
     // ROS_INFO_STREAM("error with respect to quaternion: \n" << error << "\n");
 
     //orientation error with respect to angle and axis
@@ -145,20 +148,22 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
 
     // Publish controll signal
     sensor_msgs::JointState controll_signal_msg;
+    controll_signal_msg.header.stamp = ros::Time::now();
     controll_signal_msg.name = q_name;
     controll_signal_msg.position = q;
     controll_signal_msg.velocity = q_dot;
     pub.publish(controll_signal_msg);
 
+    last_error = error;
     last_stamp = ros::Time::now();
-    ROS_INFO("end");
+    // ROS_INFO("end");
 }
 
 // Callback for /set_point
 void setpointCallback(const path_control::EndEffectorState::ConstPtr& msg) {
     setpoint_msg = *msg;
     setpoint_received = true;
-    ROS_INFO("Received /setpoint data.");
+    // ROS_INFO("Received /setpoint data.");
 }
 
 void controllSignalPub() {
@@ -167,8 +172,10 @@ void controllSignalPub() {
 int main(int argc, char** argv) {
     std::cout << "damp: ";
     std::cin >> damp;
-    std::cout << "K: ";
-    std::cin >> K;
+    std::cout << "Kp: ";
+    std::cin >> Kp;
+    std::cout << "Td: ";
+    std::cin >> Td;
     ros::init(argc, argv, "controller");
     ros::NodeHandle nh;
 
@@ -196,3 +203,4 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+// tam@tam-ThinkPad-X1-Carbon-Gen-9:~$ rqt_plot /joint_states/position[0] /controll_signal/position[0] /controll_signal/position[1] /controll_signal/position[2] /controll_signal/position[3] /controll_signal/position[4] /controll_signal/position[5]  
