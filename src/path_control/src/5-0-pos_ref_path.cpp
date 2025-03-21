@@ -46,7 +46,11 @@ int main(int argc, char** argv) {
         msg.position.x = x_0;
         msg.position.y = y_0;
         msg.position.z = z_0;
-        
+        // for ploting purpose only
+        msg.roll = roll_0;
+        msg.pitch = pitch_0;
+        msg.yaw = yaw_0;
+
         // Convert RPY to quaternion
         tf2::Quaternion q;
         q.setRPY(roll_0, pitch_0, yaw_0);
@@ -70,6 +74,10 @@ int main(int argc, char** argv) {
         roll = (roll_f - roll_0) *time_step / total_steps + roll_0;
         pitch = (pitch_f - pitch_0) *time_step / total_steps + pitch_0;
         yaw = (yaw_f - yaw_0) *time_step / total_steps + yaw_0;
+        // for ploting purpose only
+        msg.roll = roll;
+        msg.pitch = pitch;
+        msg.yaw = yaw;
 
         // Convert RPY to quaternion
         tf2::Quaternion q;
@@ -89,6 +97,10 @@ int main(int argc, char** argv) {
         msg.position.x = x_f;
         msg.position.y = y_f;
         msg.position.z = z_f;
+        // for ploting purpose only
+        msg.roll = roll_f;
+        msg.pitch = pitch_f;
+        msg.yaw = yaw_f;
         
         // Convert RPY to quaternion
         tf2::Quaternion q;

@@ -161,9 +161,10 @@ add_executable(controller src/3-0-controller.cpp)
 add_executable(controller-v1 src/3-1-controller-v1.cpp)
 add_executable(update_robot_node-v1 src/4-1-update_robot_node-v1.cpp)
 
-add_executable(update_robot_node src/4-update_robot_node.cpp)
+add_executable(update_robot_node src/4-0-update_robot_node.cpp)
 add_executable(pos_ref_path src/5-0-pos_ref_path.cpp)
 add_executable(full_ref_path src/5-1-full_ref_path.cpp)
+add_executable(sine_ref_path src/5-2-sine_ref_path.cpp)
 add_executable(error_calculator src/6-error_calculator.cpp)
 
 ## Rename C++ executable without prefix
@@ -194,6 +195,7 @@ add_dependencies(update_robot_node-v1 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 add_dependencies(update_robot_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(pos_ref_path ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(full_ref_path ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(sine_ref_path ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(error_calculator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
@@ -245,6 +247,9 @@ target_link_libraries(pos_ref_path
   ${catkin_LIBRARIES}
 )
 target_link_libraries(full_ref_path
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(sine_ref_path
   ${catkin_LIBRARIES}
 )
 target_link_libraries(error_calculator

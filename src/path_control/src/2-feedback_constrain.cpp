@@ -29,6 +29,7 @@ public:
         const Eigen::Isometry3d& end_effector_state = robot_state_->getGlobalLinkTransform("link_6_t");
         Eigen::Vector3d position =  end_effector_state.translation();
         Eigen::Quaterniond quaternion(end_effector_state.rotation());
+        Eigen::Vector3d rpy = end_effector_state.rotation().eulerAngles(0, 1, 2);
 
         path_control::EndEffectorState feed_back_msg;
         feed_back_msg.position.x = position.x();
@@ -38,6 +39,11 @@ public:
         feed_back_msg.orientation.x = quaternion.x();
         feed_back_msg.orientation.y = quaternion.y();
         feed_back_msg.orientation.z = quaternion.z();
+        // for plot only, no meaning in controll
+        feed_back_msg.roll = rpy[0];
+        feed_back_msg.pitch = rpy[1];
+        feed_back_msg.yaw = rpy[2];
+
         feed_back_msg.joint = msg;
         pub_.publish(feed_back_msg);
     }
