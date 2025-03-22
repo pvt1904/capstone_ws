@@ -8,6 +8,7 @@ bool received_initial_position = false;
 bool initial_position_published = false;
 ros::Time start_time;
 bool first_message_received = false;
+double K = 1.1;
 
 // Callback to get the initial position from /joint_states
 void jointStateInitialCallback(const sensor_msgs::JointState::ConstPtr& msg) {
@@ -72,8 +73,13 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
     trajectory_msgs::JointTrajectoryPoint traj_point;
     traj_point.positions = msg->position;
     traj_point.velocities = msg->velocity;
-    traj_point.time_from_start = ros::Time::now() - start_time;;
+    for (int i = 0; i < 6; i++)
+    {
+        traj_point.positions[i] = msg->position[i];
+        traj_point.velocities[i] = msg->velocity[i];
 
+    }
+    traj_point.time_from_start = ros::Time::now() - start_time;;
     trajectory_msg.header.stamp = ros::Time::now();
     trajectory_msg.points.push_back(traj_point);
     pub.publish(trajectory_msg);
