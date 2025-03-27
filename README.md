@@ -15,3 +15,7 @@ This project demonstrates real-time **hand movement trajectory tracking** using 
 This diagram illustrates the system architecture for hand movement trajectory tracking control:
 
 ![System Architecture Diagram](https://github.com/pvt1904/capstone_ws/blob/main/system%20architecture%20diagram.png)
+
+## Demo Video 🎥  
+
+[Watch the demo here](https://www.youtube.com/watch?v=uGlPf27Kfro)
