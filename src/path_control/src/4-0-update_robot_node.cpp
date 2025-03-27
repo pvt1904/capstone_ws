@@ -77,13 +77,20 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
     trajectory_msgs::JointTrajectory trajectory_msg;
     trajectory_msg.joint_names = {"joint_1_s", "joint_2_l", "joint_3_u", "joint_4_r", "joint_5_b", "joint_6_t"};
 
+    std::vector<double> q_e, q_dot_e;
+    for (int i = 0; i < NO_JOINTS; i++)
+    {
+        q_e.push_back(msg->position.at(i) - q.at(i));
+        q_dot_e.push_back(msg->position.at(i) - q_dot.at(i));
+    }
+    
     trajectory_msgs::JointTrajectoryPoint traj_point;
     traj_point.positions = msg->position;
     traj_point.velocities = msg->velocity;
     for (int i = 0; i < NO_JOINTS; i++)
     {
-        traj_point.positions[i] = msg->position[i];
-        traj_point.velocities[i] = msg->velocity[i];
+        traj_point.positions[i] = msg->position[i] + K_q * q_e[i];
+        traj_point.velocities[i] = msg->velocity[i] + K_w * q_dot_e[i];
     }
     traj_point.time_from_start = ros::Time::now() - start_time;;
     trajectory_msg.header.stamp = ros::Time::now();
