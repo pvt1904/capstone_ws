@@ -10,3 +10,8 @@ This project demonstrates real-time **hand movement trajectory tracking** using 
 - **Ethernet/WiFi-based control** for remote operation
 - **Capstone Project Implementation** with real-world industrial applications
 
+## System Architecture
+
+This diagram illustrates the system architecture for hand movement trajectory tracking control:
+
+![System Architecture Diagram](https://github.com/pvt1904/capstone_ws/blob/main/system%20architecture%20diagram.png)
