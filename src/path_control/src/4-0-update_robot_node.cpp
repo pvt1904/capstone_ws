@@ -3,12 +3,17 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <sensor_msgs/JointState.h>
 
+#define NO_JOINTS 6
+
 std::vector<double> initial_positions;
+std::vector<double> q;
+std::vector<double> q_dot;
 bool received_initial_position = false;
 bool initial_position_published = false;
 ros::Time start_time;
 bool first_message_received = false;
-double K = 1.1;
+double K_q = 0.1;
+double K_w = 0.1;
 
 // Callback to get the initial position from /joint_states
 void jointStateInitialCallback(const sensor_msgs::JointState::ConstPtr& msg) {
@@ -17,6 +22,8 @@ void jointStateInitialCallback(const sensor_msgs::JointState::ConstPtr& msg) {
         received_initial_position = true;
         ROS_INFO("Received initial position from /joint_states.");
     }
+    q = msg->position;
+    q_dot = msg->velocity;
 }
 
 // Function to publish the initial position once
@@ -73,11 +80,10 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
     trajectory_msgs::JointTrajectoryPoint traj_point;
     traj_point.positions = msg->position;
     traj_point.velocities = msg->velocity;
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < NO_JOINTS; i++)
     {
         traj_point.positions[i] = msg->position[i];
         traj_point.velocities[i] = msg->velocity[i];
-
     }
     traj_point.time_from_start = ros::Time::now() - start_time;;
     trajectory_msg.header.stamp = ros::Time::now();
@@ -87,6 +93,11 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
 }
 
 int main(int argc, char** argv) {
+    std::cout << "K_q: ";
+    std::cin >> K_q;
+    std::cout << "K_w: ";
+    std::cin >> K_w;
+
     ros::init(argc, argv, "trajectory_command_node");
     ros::NodeHandle nh;
 

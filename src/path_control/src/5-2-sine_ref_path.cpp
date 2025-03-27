@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
         }
         // Convert RPY to quaternion
         tf2::Quaternion q;
-        q.setRPY(msg.roll, msg.pitch, msg.yaw);
+        // q.setRPY(msg.roll, msg.pitch, msg.yaw);
 
         // Convert tf2 Quaternion to geometry_msgs::Quaternion
         geometry_msgs::Quaternion quat_msg;
