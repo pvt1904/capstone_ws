@@ -142,8 +142,16 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
     std::vector<double> q(q_vector.data(), q_vector.data() + q_vector.size());
     for (int i = 0; i < q.size(); i++)
     {
-        q[i] = (q[i] > JOINT_MAX_POS[i]) ? JOINT_MAX_POS[i] : q[i];
-        q[i] = (q[i] < JOINT_MIN_POS[i]) ? JOINT_MIN_POS[i] : q[i];
+        if (q[i] > JOINT_MAX_POS[i])
+        {
+            q[i] = JOINT_MAX_POS[i];
+            q_dot[i] = 0.0;
+        }
+        if (q[i] < JOINT_MIN_POS[i])
+        {
+            q[i] = JOINT_MIN_POS[i];
+            q_dot[i] = 0.0;
+        }
     }
 
     // Publish controll signal
