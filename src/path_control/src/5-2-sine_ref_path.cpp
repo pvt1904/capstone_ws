@@ -132,6 +132,29 @@ int main(int argc, char** argv) {
         pub.publish(msg);
         loop_rate.sleep();
     }
+
+    for (int i = 0; i < frequency * 2; i++)
+    {
+        msg.position.x = x_0;
+        msg.position.y = y_0;
+        msg.position.z = z_0;
+        
+        // Convert RPY to quaternion
+        tf2::Quaternion q;
+        q.setRPY(roll_0, pitch_0, yaw_0);
+
+        // Convert tf2 Quaternion to geometry_msgs::Quaternion
+        geometry_msgs::Quaternion quat_msg;
+        tf2::convert(q, quat_msg);
+        msg.orientation = quat_msg;
+
+        msg.roll = roll_0;
+        msg.pitch = pitch_0;
+        msg.roll = roll_0;
+
+        pub.publish(msg);
+        loop_rate.sleep();
+    }
     
     ROS_INFO("Finished.");
     return 0;
