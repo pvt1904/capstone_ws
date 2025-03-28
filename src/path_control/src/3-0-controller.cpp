@@ -154,13 +154,26 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
         }
     }
 
-    // Publish controll signal
-    sensor_msgs::JointState controll_signal_msg;
-    controll_signal_msg.header.stamp = ros::Time::now();
-    controll_signal_msg.name = q_name;
-    controll_signal_msg.position = q;
-    controll_signal_msg.velocity = q_dot;
-    pub.publish(controll_signal_msg);
+    // Publish control signal
+    path_control::EndEffectorState control_signal_msg;
+    control_signal_msg.joint.header.stamp = ros::Time::now();
+    control_signal_msg.joint.name = q_name;
+    control_signal_msg.joint.position = q;
+    control_signal_msg.joint.velocity = q_dot;
+
+    // Calculate roll, pitch, yaw for plotting
+    robot_state_->setVariablePositions(control_signal_msg.joint.name, control_signal_msg.joint.position);
+    robot_state_->update();
+    const Eigen::Isometry3d& end_effector_state = robot_state_->getGlobalLinkTransform("link_6_t");
+    control_signal_msg.position.x = end_effector_state.translation().x();
+    control_signal_msg.position.y = end_effector_state.translation().y();
+    control_signal_msg.position.z = end_effector_state.translation().z();
+    Eigen::Vector3d rpy = end_effector_state.rotation().eulerAngles(0, 1, 2);
+    control_signal_msg.roll = rpy[0];
+    control_signal_msg.pitch = rpy[1];
+    control_signal_msg.yaw = rpy[2];
+
+    pub.publish(control_signal_msg);
 
     last_error = error;
     last_stamp = ros::Time::now();
@@ -177,8 +190,9 @@ void setpointCallback(const path_control::EndEffectorState::ConstPtr& msg) {
 void controllSignalPub() {
     
 }
+
 int main(int argc, char** argv) {
-    std::cout << "Do you want to modify parameters? (Y/N)" << std::endl;
+    std::cout << "Do you want to modify parameters? (Y/N): " ;
     char get_key;
     std::cin >> get_key;
     if (get_key == 'Y'|| get_key == 'y')
@@ -204,9 +218,9 @@ int main(int argc, char** argv) {
     robot_state_ = std::make_shared<robot_state::RobotState>(robot_model_);
     robot_state_->setToDefaultValues();
 
-    ros::Publisher controll_signal_pub = nh.advertise<sensor_msgs::JointState>("/controll_signal", 10);
+    ros::Publisher control_signal_pub = nh.advertise<path_control::EndEffectorState>("/control_signal", 10);
     ros::Subscriber feedback_sub = nh.subscribe<path_control::EndEffectorState>(
-        "/feed_back", 10, boost::bind(&feedbackCallback, _1, boost::ref(controll_signal_pub))
+        "/feed_back", 10, boost::bind(&feedbackCallback, _1, boost::ref(control_signal_pub))
     );
     ros::Subscriber setpoint_sub = nh.subscribe("/setpoint", 10, setpointCallback);
 
@@ -218,4 +232,4 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-// tam@tam-ThinkPad-X1-Carbon-Gen-9:~$ rqt_plot /joint_states/position[0] /controll_signal/position[0] /controll_signal/position[1] /controll_signal/position[2] /controll_signal/position[3] /controll_signal/position[4] /controll_signal/position[5]  
+// tam@tam-ThinkPad-X1-Carbon-Gen-9:~$ rqt_plot /joint_states/position[0] /control_signal/position[0] /control_signal/position[1] /control_signal/position[2] /control_signal/position[3] /control_signal/position[4] /control_signal/position[5]  

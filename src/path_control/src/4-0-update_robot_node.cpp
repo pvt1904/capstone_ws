@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <path_control/EndEffectorState.h>
 #include <sensor_msgs/JointState.h>
 
 #define NO_JOINTS 6
@@ -50,7 +51,7 @@ void publishInitialPosition(ros::Publisher& pub) {
 }
 
 // Callback to get positions and velocities from /controll_signal and publish to /joint_command
-void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::Publisher& pub) {
+void controllSignalCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::Publisher& pub) {
     if (!received_initial_position) {
         ROS_WARN("Initial position not yet received. Skipping message.");
         return;
@@ -80,17 +81,17 @@ void controllSignalCallback(const sensor_msgs::JointState::ConstPtr& msg, ros::P
     std::vector<double> q_e, q_dot_e;
     for (int i = 0; i < NO_JOINTS; i++)
     {
-        q_e.push_back(msg->position.at(i) - q.at(i));
-        q_dot_e.push_back(msg->position.at(i) - q_dot.at(i));
+        q_e.push_back(msg->joint.position.at(i) - q.at(i));
+        q_dot_e.push_back(msg->joint.position.at(i) - q_dot.at(i));
     }
     
     trajectory_msgs::JointTrajectoryPoint traj_point;
-    traj_point.positions = msg->position;
-    traj_point.velocities = msg->velocity;
+    traj_point.positions = msg->joint.position;
+    traj_point.velocities = msg->joint.velocity;
     for (int i = 0; i < NO_JOINTS; i++)
     {
-        traj_point.positions[i] = msg->position[i] + K_q * q_e[i];
-        traj_point.velocities[i] = msg->velocity[i] + K_w * q_dot_e[i];
+        traj_point.positions[i] = msg->joint.position[i] + K_q * q_e[i];
+        traj_point.velocities[i] = msg->joint.velocity[i] + K_w * q_dot_e[i];
     }
     traj_point.time_from_start = ros::Time::now() - start_time;;
     trajectory_msg.header.stamp = ros::Time::now();
@@ -111,7 +112,7 @@ int main(int argc, char** argv) {
     ros::Subscriber joint_state_initial_sub = nh.subscribe("/joint_states", 10, jointStateInitialCallback);
     ros::Publisher joint_command_pub = nh.advertise<trajectory_msgs::JointTrajectory>("/joint_command", 1);
 
-    ros::Subscriber joint_state_from_bag_sub = nh.subscribe<sensor_msgs::JointState>(
+    ros::Subscriber joint_state_from_bag_sub = nh.subscribe<path_control::EndEffectorState>(
         "/controll_signal", 1,
         boost::bind(&controllSignalCallback, _1, boost::ref(joint_command_pub))
     );
