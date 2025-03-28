@@ -178,7 +178,7 @@ void controllSignalPub() {
     
 }
 int main(int argc, char** argv) {
-    std::cout << "Do you want to modify parameters? (Y/N)";
+    std::cout << "Do you want to modify parameters? (Y/N)" << std::endl;
     char get_key;
     std::cin >> get_key;
     if (get_key == 'Y'|| get_key == 'y')
