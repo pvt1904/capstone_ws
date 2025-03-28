@@ -178,12 +178,19 @@ void controllSignalPub() {
     
 }
 int main(int argc, char** argv) {
-    std::cout << "damp: ";
-    std::cin >> damp;
-    std::cout << "Kp: ";
-    std::cin >> Kp;
-    std::cout << "Td: ";
-    std::cin >> Td;
+    std::cout << "Do you want to modify parameters? (Y/N)";
+    char get_key;
+    std::cin >> get_key;
+    if (get_key == 'Y'|| get_key == 'y')
+    {
+        std::cout << "damp: ";
+        std::cin >> damp;
+        std::cout << "Kp: ";
+        std::cin >> Kp;
+        std::cout << "Td: ";
+        std::cin >> Td;
+    }
+        
     ros::init(argc, argv, "controller");
     ros::NodeHandle nh;
 
