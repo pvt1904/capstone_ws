@@ -17,9 +17,9 @@ ros::Time last_stamp;
 robot_model::RobotModelPtr robot_model_;
 robot_state::RobotStatePtr robot_state_;
 // DLS method variables
-float damp = 0.02;
+float damp = 0.05;
 float Kp = 1.3;
-float Td = 0.001;
+float Td = 0.0001;
 
 // Conversion factor from degrees to radians
 #define DEG_TO_RAD  (M_PI / 180.0)
