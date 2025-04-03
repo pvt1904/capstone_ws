@@ -50,7 +50,7 @@ void publishInitialPosition(ros::Publisher& pub) {
     ROS_INFO("Published initial position with zero velocity to /joint_command.");
 }
 
-// Callback to get positions and velocities from /controll_signal and publish to /joint_command
+// Callback to get positions and velocities from /control_signal and publish to /joint_command
 void controllSignalCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::Publisher& pub) {
     if (!received_initial_position) {
         ROS_WARN("Initial position not yet received. Skipping message.");
@@ -97,7 +97,7 @@ void controllSignalCallback(const path_control::EndEffectorState::ConstPtr& msg,
     trajectory_msg.header.stamp = ros::Time::now();
     trajectory_msg.points.push_back(traj_point);
     pub.publish(trajectory_msg);
-    // ROS_INFO("Published trajectory point from /controll_signal to /joint_command.");
+    // ROS_INFO("Published trajectory point from /control_signal to /joint_command.");
 }
 
 int main(int argc, char** argv) {
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     ros::Publisher joint_command_pub = nh.advertise<trajectory_msgs::JointTrajectory>("/joint_command", 1);
 
     ros::Subscriber joint_state_from_bag_sub = nh.subscribe<path_control::EndEffectorState>(
-        "/controll_signal", 1,
+        "/control_signal", 1,
         boost::bind(&controllSignalCallback, _1, boost::ref(joint_command_pub))
     );
  
