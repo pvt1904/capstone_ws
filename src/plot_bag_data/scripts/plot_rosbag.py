@@ -44,6 +44,6 @@ def plot_bag(file_path, topic_name):
     plt.show()
 
 if __name__ == "__main__":
-    bag_file = "/home/tam/capstone_ws/src/plot_bag_data/bag/ref-path-1-4.bag"  # Change this if needed
+    bag_file = "/home/tam/capstone_ws/src/plot_bag_data/bag/ref_path_1_4.bag"  # Change this if needed
     topic = "/feed_back"
     plot_bag(bag_file, topic)

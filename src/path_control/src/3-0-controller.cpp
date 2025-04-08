@@ -23,7 +23,7 @@ float Td = 0.0001;
 
 // Conversion factor from degrees to radians
 #define DEG_TO_RAD  (M_PI / 180.0)
-#define TOLERANCE   (5 * DEG_TO_RAD)
+#define TOLERANCE   (10 * DEG_TO_RAD)
 // Maximum motion range in radians
 #define JOINT_1_S_MAX_POS   (170 * DEG_TO_RAD)
 #define JOINT_1_S_MIN_POS   (-170 * DEG_TO_RAD)
@@ -51,7 +51,7 @@ const std::vector<double> JOINT_MIN_POS = {JOINT_1_S_MIN_POS + TOLERANCE, JOINT_
 #define JOINT_4_R_MAX_SPEED (600 * DEG_TO_RAD)
 #define JOINT_5_B_MAX_SPEED (600 * DEG_TO_RAD)
 #define JOINT_6_T_MAX_SPEED (600 * DEG_TO_RAD)
-#define TOLERANCE_SPEED   (10 * DEG_TO_RAD)
+#define TOLERANCE_SPEED   (20 * DEG_TO_RAD)
 const std::vector<double> JOINT_MAX_SPEED = {JOINT_1_S_MAX_SPEED - TOLERANCE_SPEED, JOINT_2_L_MAX_SPEED - TOLERANCE_SPEED, 
                                              JOINT_3_U_MAX_SPEED - TOLERANCE_SPEED, JOINT_4_R_MAX_SPEED - TOLERANCE_SPEED, 
                                              JOINT_5_B_MAX_SPEED - TOLERANCE_SPEED, JOINT_6_T_MAX_SPEED - TOLERANCE_SPEED};

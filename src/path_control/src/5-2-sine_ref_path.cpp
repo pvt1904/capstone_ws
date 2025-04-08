@@ -18,9 +18,10 @@ double quat_x0 = 0.0;
 double quat_y0 = 0.0;
 double quat_z0 = 0.0;
 
-const int frequency = 500;
-const int time_interval = 10;
-const int total_steps = frequency * time_interval;
+const int pub_frequency = 500;
+// const int time_interval = 10;
+// const int total_steps = frequency * time_interval;
+const int number_of_period = 10;
 
 enum OutputSelection { 
     X,
@@ -35,7 +36,7 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "ref_path");
     ros::NodeHandle nh;
     ros::Publisher pub = nh.advertise<path_control::EndEffectorState>("/setpoint", 10);
-    ros::Rate loop_rate(frequency);
+    ros::Rate loop_rate(pub_frequency);
 
     double sine_frequency = 1;
     double sine_amplitude = 0.01;
@@ -44,7 +45,8 @@ int main(int argc, char** argv) {
     do
     {
         std::cout << "Select the parameter to apply the sine wave:\n";
-        std::cout << "  0: X\n  1: Y\n  2: Z\n  3: Roll\n   4: Pitch\n  5: Yaw\n";
+        std::cout << "  0: X\n  1: Y\n  2: Z\n  3: Roll\n  4: Pitch\n  5: Yaw\n";
+        std::cout << "Enter your choice: ";
         std::cin >> sine_selection;
         if (0 <= sine_selection && sine_selection <= 5) {
             break;
@@ -86,7 +88,7 @@ int main(int argc, char** argv) {
     } while (!approved);
     
     path_control::EndEffectorState msg;
-    for (int i = 0; i < frequency * 2; i++)
+    for (int i = 0; i < pub_frequency * 2; i++) 
     {
         msg.position.x = x_0;
         msg.position.y = y_0;
@@ -109,8 +111,8 @@ int main(int argc, char** argv) {
         loop_rate.sleep();
     }
 
-    for (int time_step = 0; time_step < total_steps; time_step++) {
-        double sine_value = sine_amplitude * std::sin(2 * M_PI * sine_frequency * time_step / frequency);
+    for (int time_step = 0; time_step < pub_frequency * number_of_period / sine_frequency; time_step++) {
+        double sine_value = sine_amplitude * std::sin(2 * M_PI * sine_frequency * time_step / pub_frequency);
 
         switch (sine_selection) {
             case X: msg.position.x = sine_value + x_0; break;
@@ -122,7 +124,7 @@ int main(int argc, char** argv) {
         }
         // Convert RPY to quaternion
         tf2::Quaternion q;
-        // q.setRPY(msg.roll, msg.pitch, msg.yaw);
+        q.setRPY(msg.roll, msg.pitch, msg.yaw);
 
         // Convert tf2 Quaternion to geometry_msgs::Quaternion
         geometry_msgs::Quaternion quat_msg;
@@ -133,28 +135,28 @@ int main(int argc, char** argv) {
         loop_rate.sleep();
     }
 
-    for (int i = 0; i < frequency * 2; i++)
-    {
-        msg.position.x = x_0;
-        msg.position.y = y_0;
-        msg.position.z = z_0;
+    // for (int i = 0; i < frequency * 2; i++)
+    // {
+    //     msg.position.x = x_0;
+    //     msg.position.y = y_0;
+    //     msg.position.z = z_0;
         
-        // Convert RPY to quaternion
-        tf2::Quaternion q;
-        q.setRPY(roll_0, pitch_0, yaw_0);
+    //     // Convert RPY to quaternion
+    //     tf2::Quaternion q;
+    //     q.setRPY(roll_0, pitch_0, yaw_0);
 
-        // Convert tf2 Quaternion to geometry_msgs::Quaternion
-        geometry_msgs::Quaternion quat_msg;
-        tf2::convert(q, quat_msg);
-        msg.orientation = quat_msg;
+    //     // Convert tf2 Quaternion to geometry_msgs::Quaternion
+    //     geometry_msgs::Quaternion quat_msg;
+    //     tf2::convert(q, quat_msg);
+    //     msg.orientation = quat_msg;
 
-        msg.roll = roll_0;
-        msg.pitch = pitch_0;
-        msg.roll = roll_0;
+    //     msg.roll = roll_0;
+    //     msg.pitch = pitch_0;
+    //     msg.roll = roll_0;
 
-        pub.publish(msg);
-        loop_rate.sleep();
-    }
+    //     pub.publish(msg);
+    //     loop_rate.sleep();
+    // }
     
     ROS_INFO("Finished.");
     return 0;
