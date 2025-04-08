@@ -2,6 +2,8 @@
 #include <path_control/EndEffectorState.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <geometry_msgs/Pose.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 class SetpointPublisher {
 public:
@@ -14,6 +16,18 @@ public:
         first_desired_point_received = true;
         latest_data_.position = msg.position; // Store the newest data
         latest_data_.orientation = msg.orientation;
+
+        // convert to roll, pitch, yaw for plotting only
+        tf2::Quaternion q(
+            msg.orientation.x,
+            msg.orientation.y,
+            msg.orientation.z,
+            msg.orientation.w
+        );
+    
+        tf2::Matrix3x3 m(q);
+        m.getRPY(latest_data_.roll, latest_data_.pitch, latest_data_.yaw);
+
         has_new_data_ = true;
     }
 
