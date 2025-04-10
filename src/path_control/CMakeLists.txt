@@ -166,6 +166,7 @@ add_executable(pos_ref_path src/5-0-pos_ref_path.cpp)
 add_executable(full_ref_path src/5-1-full_ref_path.cpp)
 add_executable(sine_ref_path src/5-2-sine_ref_path.cpp)
 add_executable(error_calculator src/6-error_calculator.cpp)
+add_executable(bridge_delay_test src/7-bridge_delay_test.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -197,6 +198,7 @@ add_dependencies(pos_ref_path ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPOR
 add_dependencies(full_ref_path ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(sine_ref_path ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(error_calculator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(bridge_delay_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(read_from_bag
@@ -255,7 +257,9 @@ target_link_libraries(sine_ref_path
 target_link_libraries(error_calculator
   ${catkin_LIBRARIES}
 )
-
+target_link_libraries(bridge_delay_test
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
