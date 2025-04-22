@@ -9,6 +9,7 @@ class RobotLauncher(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Motoman Robot Launcher")
+        self.interface_process = None  # Store process reference
         self.init_ui()
 
     def init_ui(self):
@@ -40,6 +41,11 @@ class RobotLauncher(QWidget):
         self.launch_interface_btn.clicked.connect(self.launch_interface)
         conn_layout.addWidget(self.launch_interface_btn)
 
+        # Disconnect button
+        self.disconnect_btn = QPushButton("Disconnect Interface")
+        self.disconnect_btn.clicked.connect(self.disconnect_interface)
+        conn_layout.addWidget(self.disconnect_btn)
+
         # Launch demo button
         self.launch_demo_btn = QPushButton("Launch Demo")
         self.launch_demo_btn.clicked.connect(self.launch_demo)
@@ -65,10 +71,19 @@ class RobotLauncher(QWidget):
 
         try:
             cmd = f"roslaunch motoman_motomini_support robot_interface_streaming_motomini.launch controller:={ctrl} robot_ip:={ip}"
-            subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.interface_process = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             QMessageBox.information(self, "Launching", "Robot Interface is launching in background...")
         except Exception as e:
             QMessageBox.critical(self, "Launch Failed", str(e))
+
+    def disconnect_interface(self):
+        if self.interface_process and self.interface_process.poll() is None:
+            self.interface_process.terminate()
+            self.interface_process.wait()
+            QMessageBox.information(self, "Disconnected", "Robot Interface has been stopped.")
+            self.interface_process = None
+        else:
+            QMessageBox.information(self, "Not Running", "Robot Interface is not currently running.")
 
     def launch_demo(self):
         try:
@@ -92,6 +107,14 @@ class RobotLauncher(QWidget):
             QMessageBox.critical(self, "Connection Failed", f"Error:\n{e.output.decode()}")
         except FileNotFoundError:
             QMessageBox.critical(self, "ROS Not Found", "ROS environment not sourced.")
+    def closeEvent(self, event):
+        # Gracefully stop the robot interface if running
+        if self.interface_process and self.interface_process.poll() is None:
+            self.interface_process.terminate()
+            self.interface_process.wait()
+
+        event.accept()  # Let the window close
+
 
 
 if __name__ == "__main__":
