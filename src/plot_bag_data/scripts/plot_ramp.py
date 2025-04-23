@@ -1,7 +1,7 @@
 import rosbag
 import matplotlib.pyplot as plt
 
-bag_file = '/home/tam/capstone_ws/src/plot_bag_data/bag/ramp_Kp_1.25_50mm.bag'
+bag_file = '/home/tam/capstone_ws/src/path_control/bag/ramp_test/ramp_Kp_1.5_50mm.bag'
 
 setpoint_time = []
 setpoint_x = []

@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
 
     // Publish the final position or orientation for 5 seconds
     ROS_INFO("Finished ramping. Publishing final position for 5 more seconds...");
-    for (int i = 0; i < 100 * pub_frequency; i++) {
+    for (int i = 0; i < 10 * pub_frequency; i++) {
         switch (selection) {
             case X: msg.position.x = final_value; break;
             case Y: msg.position.y = final_value; break;
