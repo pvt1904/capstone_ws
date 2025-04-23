@@ -1,7 +1,7 @@
 import rosbag
 import matplotlib.pyplot as plt
 
-bag_file = '/home/tam/capstone_ws/src/plot_bag_data/bag/ramp_damp_0.5_50mm.bag'
+bag_file = '/home/tam/capstone_ws/src/plot_bag_data/bag/ramp_Kp_1.25_50mm.bag'
 
 setpoint_time = []
 setpoint_x = []
@@ -51,10 +51,11 @@ if setpoint_time:
     plt.plot(feedback_time, feedback_x, label='/feed_back/position/x', color='red')
     plt.xlabel('Time (s)')
     plt.ylabel('Position x (mm)')
-    plt.title('Reponse of Position x with Damping-constant = 0.5')
+    # plt.title('Reponse of Position x with Damping-constant = 0.5')
+    plt.title('Reponse of Position x with K_p = 0.5')
     plt.legend()
     plt.grid(True)
-    plt.xlim([0, 70])  # explicitly set x-axis to 10s
+    plt.xlim([0, 10])  # explicitly set x-axis to 10s
     plt.tight_layout()
     plt.show()
 else:
