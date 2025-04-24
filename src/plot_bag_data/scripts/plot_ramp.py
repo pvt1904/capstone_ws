@@ -1,7 +1,7 @@
 import rosbag
 import matplotlib.pyplot as plt
 
-bag_file = '/home/tam/capstone_ws/src/path_control/bag/ramp_test/ramp_Kp_1.5_50mm.bag'
+bag_file = '/home/tam/capstone_ws/src/path_control/bag/test-pitch.bag'
 
 setpoint_time = []
 setpoint_x = []
@@ -12,10 +12,10 @@ with rosbag.Bag(bag_file, 'r') as bag:
     for topic, msg, t in bag.read_messages(topics=['/setpoint', '/feed_back']):
         if topic == '/setpoint':
             setpoint_time.append(t.to_sec())
-            setpoint_x.append(msg.position.x * 1000)
+            setpoint_x.append(msg.pitch )
         elif topic == '/feed_back':
             feedback_time.append(t.to_sec())
-            feedback_x.append(msg.position.x * 1000)
+            feedback_x.append(msg.pitch )
 
 # Only continue if setpoint is found
 if setpoint_time:
@@ -55,7 +55,7 @@ if setpoint_time:
     plt.title('Reponse of Position x with K_p = 0.5')
     plt.legend()
     plt.grid(True)
-    plt.xlim([0, 10])  # explicitly set x-axis to 10s
+    plt.xlim([0, 220])  # explicitly set x-axis to 10s
     plt.tight_layout()
     plt.show()
 else:

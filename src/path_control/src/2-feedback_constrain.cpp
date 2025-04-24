@@ -5,6 +5,8 @@
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <path_control/EndEffectorState.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 class SetpointPublisher {
 public:
@@ -40,9 +42,16 @@ public:
         feed_back_msg.orientation.y = quaternion.y();
         feed_back_msg.orientation.z = quaternion.z();
         // for plot only, no meaning in controll
-        feed_back_msg.roll = rpy[0];
-        feed_back_msg.pitch = rpy[1];
-        feed_back_msg.yaw = rpy[2];
+        // convert to roll, pitch, yaw for plotting only
+        tf2::Quaternion q(
+            quaternion.x(),
+            quaternion.y(),
+            quaternion.z(),
+            quaternion.w()
+        );
+    
+        tf2::Matrix3x3 m(q);
+        m.getRPY(feed_back_msg.roll, feed_back_msg.pitch, feed_back_msg.yaw);
 
         feed_back_msg.joint = msg;
         pub_.publish(feed_back_msg);
