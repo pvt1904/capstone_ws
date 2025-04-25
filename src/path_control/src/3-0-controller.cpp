@@ -19,11 +19,11 @@ robot_state::RobotStatePtr robot_state_;
 // DLS method variables
 float damp = 0.05;
 float Kp = 1.3;
-float Td = 0.0001;
+float Td = 0.0;
 
 // Conversion factor from degrees to radians
 #define DEG_TO_RAD  (M_PI / 180.0)
-#define TOLERANCE   (20 * DEG_TO_RAD)
+#define TOLERANCE   (10 * DEG_TO_RAD)
 // Maximum motion range in radians
 #define JOINT_1_S_MAX_POS   (170 * DEG_TO_RAD)
 #define JOINT_1_S_MIN_POS   (-170 * DEG_TO_RAD)

@@ -25,6 +25,7 @@ class RobotLauncher(QWidget):
 
     def init_ui(self):
         main_layout = QVBoxLayout()
+
         # Connection group
         conn_group = QGroupBox("Connection")
         conn_layout = QVBoxLayout()
@@ -52,9 +53,11 @@ class RobotLauncher(QWidget):
             conn_layout.addWidget(btn)
         conn_group.setLayout(conn_layout)
         main_layout.addWidget(conn_group)
-        # Control panel
+
+        # Control Panel group
         control_group = QGroupBox("Control Panel")
         control_layout = QVBoxLayout()
+
         # Servo
         servo_layout = QHBoxLayout()
         self.servo_on_btn = QPushButton("Servo ON")
@@ -64,6 +67,41 @@ class RobotLauncher(QWidget):
         servo_layout.addWidget(self.servo_on_btn)
         servo_layout.addWidget(self.servo_off_btn)
         control_layout.addLayout(servo_layout)
+
+        # Move to Desired Joint Angles
+        joint_angle_group = QGroupBox("Move to Desired Joint Angles (in degrees)")
+        joint_angle_layout = QHBoxLayout()
+        self.joint_inputs = []
+        for i in range(6):
+            joint_input = QLineEdit()
+            joint_input.setPlaceholderText(f"Joint {i+1}")
+            joint_angle_layout.addWidget(joint_input)
+            self.joint_inputs.append(joint_input)
+        # Small "Move" button for joint angles
+        self.move_joint_btn = QPushButton("Move")
+        self.move_joint_btn.setFixedSize(50, 25)
+        self.move_joint_btn.clicked.connect(self.move_to_joint_angles)
+        joint_angle_layout.addWidget(self.move_joint_btn)
+        joint_angle_group.setLayout(joint_angle_layout)
+        control_layout.addWidget(joint_angle_group)
+
+        # Move to Desired Pose
+        pose_group = QGroupBox("Move to Desired Pose (in mm)")
+        pose_layout = QHBoxLayout()
+        self.pose_inputs = []
+        for label in ["X", "Y", "Z", "Qw", "Qx", "Qy", "Qz"]:
+            pose_input = QLineEdit()
+            pose_input.setPlaceholderText(label)
+            pose_layout.addWidget(pose_input)
+            self.pose_inputs.append(pose_input)
+        # Small "Move" button for pose
+        self.move_pose_btn = QPushButton("Move")
+        self.move_pose_btn.setFixedSize(50, 25)
+        self.move_pose_btn.clicked.connect(self.move_to_pose)
+        pose_layout.addWidget(self.move_pose_btn)
+        pose_group.setLayout(pose_layout)
+        control_layout.addWidget(pose_group)
+
         # Go Home
         home_layout = QHBoxLayout()
         home_layout.addWidget(QLabel("Time to Home (s):"))
@@ -73,9 +111,29 @@ class RobotLauncher(QWidget):
         self.go_home_btn.clicked.connect(self.go_home)
         home_layout.addWidget(self.go_home_btn)
         control_layout.addLayout(home_layout)
+
+        # Run/Stop Nodes
+        node_group = QGroupBox("Run/Stop Nodes")
+        node_layout = QVBoxLayout()
+        for node_name in ["sensor_constrain", "feedback_constrain", "controller", "update_robot_node"]:
+            node_layout.addLayout(self.create_run_stop_layout(node_name))
+        node_group.setLayout(node_layout)
+        control_layout.addWidget(node_group)
+
         control_group.setLayout(control_layout)
         main_layout.addWidget(control_group)
+
         self.setLayout(main_layout)
+
+    def create_run_stop_layout(self, node_name):
+        layout = QHBoxLayout()
+        run_button = QPushButton(f"Run {node_name}")
+        run_button.clicked.connect(lambda: self.run_node(node_name, "run"))
+        stop_button = QPushButton(f"Stop {node_name}")
+        stop_button.clicked.connect(lambda: self.run_node(node_name, "stop"))
+        layout.addWidget(run_button)
+        layout.addWidget(stop_button)
+        return layout
 
     def joint_states_cb(self, msg):
         self.current_joint_states = msg
@@ -155,6 +213,45 @@ class RobotLauncher(QWidget):
         traj_home.header.stamp = rospy.Time.now()
         self.traj_pub.publish(traj_home)
         QMessageBox.information(self, "Go Home", f"Trajectory: current->home in {dt}s published.")
+
+    def move_to_joint_angles(self):
+        angles = []
+        try:
+            angles = [float(input.text()) for input in self.joint_inputs]
+        except ValueError:
+            QMessageBox.warning(self, "Input Error", "Invalid joint angle values.")
+            return
+        # Publish joint angles
+        traj = JointTrajectory()
+        traj.joint_names = ["joint_1_s","joint_2_l","joint_3_u","joint_4_r","joint_5_b","joint_6_t"]
+        p = JointTrajectoryPoint()
+        p.positions = angles
+        p.velocities = [0.0]*len(angles)
+        p.time_from_start = rospy.Duration(1.0)
+        traj.points = [p]
+        traj.header.stamp = rospy.Time.now()
+        self.traj_pub.publish(traj)
+        QMessageBox.information(self, "Moving", "Moving to desired joint angles.")
+
+    def move_to_pose(self):
+        pose = []
+        try:
+            pose = [float(input.text()) for input in self.pose_inputs]
+        except ValueError:
+            QMessageBox.warning(self, "Input Error", "Invalid pose values.")
+            return
+        # Publish pose (This is a placeholder for the actual pose conversion)
+        # You can add conversion to a trajectory for your robot
+        QMessageBox.information(self, "Moving", "Moving to desired pose.")
+
+    def run_node(self, node_name, action):
+        try:
+            cmd = f"rosrun path_control {node_name}_{action}"
+            subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            QMessageBox.information(self, f"{action.capitalize()} {node_name}",
+                                    f"{action.capitalize()} {node_name} node is running.")
+        except Exception as e:
+            QMessageBox.critical(self, f"{action.capitalize()} {node_name} Fail", str(e))
 
     def closeEvent(self, event):
         if self.interface_process and self.interface_process.poll() is None:
