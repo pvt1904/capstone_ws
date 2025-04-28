@@ -1,7 +1,7 @@
 import rosbag
 import matplotlib.pyplot as plt
 
-bag_file = '/home/tam/capstone_ws/src/path_control/bag/Kp_test/Kp_2_100mm.bag'
+bag_file = '/home/tam/capstone_ws/src/path_control/bag/test-x.bag'
 
 setpoint_time = []
 setpoint_x = []
@@ -46,16 +46,27 @@ if setpoint_time:
     feedback_time, feedback_x = prolong_signal(feedback_time, feedback_x, desired_end_time)
 
     # Plotting
+
+    # Set default font size for everything
+    plt.rcParams.update({
+        'font.size': 14,         # base font size
+        'axes.titlesize': 16,     # subplot title
+        'axes.labelsize': 15,     # x and y labels
+        'xtick.labelsize': 13,    # x tick labels
+        'ytick.labelsize': 13,    # y tick labels
+        'legend.fontsize': 13     # legend text
+    })
+
     plt.figure(figsize=(10, 6))
     plt.plot(setpoint_time, setpoint_x, label='/setpoint/position/x', color='blue')
     plt.plot(feedback_time, feedback_x, label='/feed_back/position/x', color='red')
     plt.xlabel('Time (s)')
     plt.ylabel('Position x (mm)')
     # plt.title('Reponse of Position x with Damping-constant = 0.5')
-    plt.title('Reponse of Position x with with Kp = 2')
+    plt.title('Reponse of Position x')
     plt.legend(loc='upper left')
     plt.grid(True)
-    plt.xlim([0, 10])  # explicitly set x-axis to 10s
+    plt.xlim([0, 220])  # explicitly set x-axis to 10s
     plt.tight_layout()
     plt.show()
 else:
