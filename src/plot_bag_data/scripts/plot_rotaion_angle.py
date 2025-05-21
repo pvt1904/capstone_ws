@@ -4,12 +4,12 @@ import numpy as np
 import math
 from tf.transformations import euler_from_quaternion
 
-bag_file = '/home/tam/capstone_ws/src/path_control/bag/test-pitch.bag'
+bag_file = '/home/tam/capstone_ws/src/plot_bag_data/bag/singularities/test_orient.bag'
 
 setpoint_time = []
-setpoint_pitch = []
+setpoint_yaw = []
 feedback_time = []
-feedback_pitch = []
+feedback_yaw = []
 
 # Read from bag
 with rosbag.Bag(bag_file, 'r') as bag:
@@ -19,18 +19,18 @@ with rosbag.Bag(bag_file, 'r') as bag:
             q = msg.orientation  # Adjust if needed (e.g., msg.pose.orientation)
             quat = [q.x, q.y, q.z, q.w]
             roll, pitch, yaw = euler_from_quaternion(quat)
-            pitch_deg = math.degrees(pitch)
+            yaw_deg = math.degrees(yaw)
         except AttributeError:
-            print(f"⚠️ Skipping message on topic {topic} due to missing orientation")
+            print(f"Skipping message on topic {topic} due to missing orientation")
             continue
 
         timestamp = t.to_sec()
         if topic == '/setpoint':
             setpoint_time.append(timestamp)
-            setpoint_pitch.append(pitch_deg)
+            setpoint_yaw.append(yaw_deg)
         elif topic == '/feed_back':
             feedback_time.append(timestamp)
-            feedback_pitch.append(pitch_deg)
+            feedback_yaw.append(yaw_deg)
 
 # Proceed only if /setpoint is available
 if setpoint_time:
@@ -39,7 +39,7 @@ if setpoint_time:
     # Normalize time
     setpoint_time = [t - start_time for t in setpoint_time]
     feedback_time = [t - start_time for t in feedback_time if t >= start_time]
-    feedback_pitch = feedback_pitch[-len(feedback_time):]
+    feedback_yaw = feedback_yaw[-len(feedback_time):]
 
     # Prolong both to 10s
     desired_end_time = 10.0
@@ -56,19 +56,19 @@ if setpoint_time:
             value_list.append(last_value)
         return time_list, value_list
 
-    setpoint_time, setpoint_pitch = prolong_signal(setpoint_time, setpoint_pitch, desired_end_time)
-    feedback_time, feedback_pitch = prolong_signal(feedback_time, feedback_pitch, desired_end_time)
+    setpoint_time, setpoint_yaw = prolong_signal(setpoint_time, setpoint_yaw, desired_end_time)
+    feedback_time, feedback_yaw = prolong_signal(feedback_time, feedback_yaw, desired_end_time)
 
     # Plotting
     plt.figure(figsize=(10, 6))
-    plt.plot(setpoint_time, setpoint_pitch, label='Setpoint Pitch (°)', color='blue')
-    plt.plot(feedback_time, feedback_pitch, label='Feedback Pitch (°)', color='red')
+    plt.plot(setpoint_time, setpoint_yaw, label='Setpoint Yaw (°)', color='blue')
+    plt.plot(feedback_time, feedback_yaw, label='Feedback Yaw (°)', color='red')
     plt.xlabel('Time (s)')
-    plt.ylabel('Pitch Angle (°)')
-    plt.title('Pitch Response - Quaternion to Euler Conversion')
+    plt.ylabel('Yaw Angle (°)')
+    plt.title('Orientation Response')
     plt.legend()
     plt.grid(True)
-    plt.xlim([0, 100])
+    plt.xlim([0, 225])  # Updated to match 10 seconds of data
     plt.tight_layout()
     plt.show()
 else:
