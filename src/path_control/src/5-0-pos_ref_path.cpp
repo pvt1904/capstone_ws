@@ -9,9 +9,9 @@ double roll_0 = 0.0;
 double pitch_0 = 0.0;
 double yaw_0 = 0.0;
 
-double roll_f = 0.5;   
-double pitch_f = 0.6;
-double yaw_f = 0.7;
+double roll_f = 0;   
+double pitch_f = 0;
+double yaw_f = 0;
 
 const double x_0 = 0.185;
 const double y_0 = 0.0;
@@ -22,9 +22,16 @@ const double quat_x0 = 0.0;
 const double quat_y0 = 0.0;
 const double quat_z0 = 0.0;
 
-const double x_f = 0.2;
-const double y_f = 0.1;
-const double z_f = 0.2;
+const double x_f = 0.022128843079031846;
+const double y_f = 9.983889035029543e-07;
+const double z_f = 0.2680067321048058;
+
+/*
+  x: 0.022128843079031846
+  y: 9.983889035029543e-07
+  z: 0.2680067321048058
+
+*/
 
 const double quat_wf = 1.0;
 const double quat_xf = 0.0;
@@ -40,7 +47,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
     ros::Publisher pub = nh.advertise<path_control::EndEffectorState>("/setpoint", 10);
     ros::Rate loop_rate(frequency);
-    for (int i = 0; i < total_steps; i++)
+    for (int i = 0; i < total_steps/2*3; i++)
     {
         path_control::EndEffectorState msg;
         msg.position.x = x_0;
@@ -120,3 +127,4 @@ int main(int argc, char** argv) {
 }
 
 // rqt_plot /desired_point/position/x /desired_point/position/y /desired_point/position/z
+// rqt_plot /control_signal_with_norm_Jacob/joint/velocity[1] /control_signal_with_norm_Jacob/joint/velocity[2] /control_signal_with_norm_Jacob/joint/velocity[4] /control_signal/joint/velocity[1] /control_signal/joint/velocity[2] /control_signal/joint/velocity[4] 

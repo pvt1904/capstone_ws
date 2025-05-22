@@ -137,6 +137,10 @@ void feedbackCallback(const path_control::EndEffectorState::ConstPtr& msg, ros::
         q_dot[i] =  std::abs(q_dot[i]);
         q_dot[i] = (q_dot[i] > JOINT_MAX_SPEED[i]) ? JOINT_MAX_SPEED[i] : q_dot[i];
     }
+    std::cout << "-------------------------\n";
+    std::cout << "dq: " << dq << "\n";
+    std::cout << "q_dot_vector: " << q_dot_vector << "\n";
+    std::cout << "dt: " << dt << "\n";
     /*-----------------------------*/
     Eigen::VectorXd q_dot_vector_with_norm_Jacob = dq_with_norm_Jacob / dt;
     std::vector<double> q_dot_with_norm_Jacob(q_dot_vector_with_norm_Jacob.data(), q_dot_vector_with_norm_Jacob.data() + q_dot_vector_with_norm_Jacob.size());
