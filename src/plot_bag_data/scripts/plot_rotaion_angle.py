@@ -60,11 +60,22 @@ if setpoint_time:
     feedback_time, feedback_yaw = prolong_signal(feedback_time, feedback_yaw, desired_end_time)
 
     # Plotting
+
+    # Set default font size for everything
+    plt.rcParams.update({
+        'font.size': 14,         # base font size
+        'axes.titlesize': 16,     # subplot title
+        'axes.labelsize': 15,     # x and y labels
+        'xtick.labelsize': 13,    # x tick labels
+        'ytick.labelsize': 13,    # y tick labels
+        'legend.fontsize': 13     # legend text
+    })
+    
     plt.figure(figsize=(10, 6))
-    plt.plot(setpoint_time, setpoint_yaw, label='Setpoint Yaw (°)', color='blue')
-    plt.plot(feedback_time, feedback_yaw, label='Feedback Yaw (°)', color='red')
+    plt.plot(setpoint_time, setpoint_yaw, label='Setpoint (°)', color='blue')
+    plt.plot(feedback_time, feedback_yaw, label='Feedback (°)', color='red')
     plt.xlabel('Time (s)')
-    plt.ylabel('Yaw Angle (°)')
+    plt.ylabel('Rotation Angle (°)')
     plt.title('Orientation Response')
     plt.legend()
     plt.grid(True)
