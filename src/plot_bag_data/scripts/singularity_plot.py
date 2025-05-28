@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 bag_file = '/home/tam/capstone_ws/src/plot_bag_data/bag/singularities/test_singularity_pos_ref_path_1.bag'
 
-# Joint indices: Joint 1 = 0, Joint 5 = 4
-joint_indices = [0, 4]
-joint_labels = ['Joint 1', 'Joint 5']
+# Joint indices: Joint 1 = 0, Joint 5 = 4, Joint 6 = 5
+joint_indices = [0, 4, 5]
+joint_labels = ['Joint 1', 'Joint 5', 'Joint 6']
 
 time_norm = [[] for _ in joint_indices]
 vel_norm = [[] for _ in joint_indices]
@@ -21,12 +21,16 @@ with rosbag.Bag(bag_file, 'r') as bag:
 
         if hasattr(msg, 'joint') and len(msg.joint.velocity) > max(joint_indices):
             for i, idx in enumerate(joint_indices):
+                velocity = msg.joint.velocity[idx]
+                if idx == 4:  # Only scale Joint 5
+                    velocity /= 5
+
                 if topic == '/control_signal_with_norm_Jacob':
                     time_norm[i].append(timestamp)
-                    vel_norm[i].append(msg.joint.velocity[idx] / 2)
+                    vel_norm[i].append(velocity)
                 elif topic == '/control_signal':
                     time_raw[i].append(timestamp)
-                    vel_raw[i].append(msg.joint.velocity[idx] / 2)
+                    vel_raw[i].append(velocity)
 
 # Normalize and plot
 if all(time_norm) and all(time_raw):
@@ -43,9 +47,9 @@ if all(time_norm) and all(time_raw):
         'legend.fontsize': 13
     })
 
-    fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    fig, axes = plt.subplots(3, 1, figsize=(10, 10), sharex=True)
 
-    for i in range(2):
+    for i in range(3):
         ax = axes[i]
         ax.plot(time_norm[i], vel_norm[i], label='With Normal Jacobian', color='blue')
         ax.plot(time_raw[i], vel_raw[i], label='With DLS Algorithm', color='red')
@@ -55,7 +59,7 @@ if all(time_norm) and all(time_raw):
         ax.legend()
 
     axes[-1].set_xlabel('Time (s)')
-    plt.suptitle('Joint Velocities Comparison (Joint 1 & 5)', fontsize=18)
+    plt.suptitle('Joint Velocities Comparison (Joint 1, 5 & 6)', fontsize=18)
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 else:
